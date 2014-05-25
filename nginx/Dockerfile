@@ -1,12 +1,27 @@
-FROM    ubuntu:latest
-MAINTAINER Ricardo Amaro <mail@ricardoamaro.com>
-RUN echo "deb http://archive.ubuntu.com/ubuntu raring main restricted universe multiverse" > /etc/apt/sources.list
-RUN apt-get update
-#RUN apt-get -y upgrade
+# Use phusion/baseimage as base image. To make your builds reproducible, make
+# sure you lock down to a specific version, not to `latest`!
+# See https://github.com/phusion/baseimage-docker/blob/master/Changelog.md for
+# a list of version numbers.
+FROM phusion/baseimage:0.9.10
 
-# Keep upstart from complaining
-RUN dpkg-divert --local --rename --add /sbin/initctl
-RUN ln -s /bin/true /sbin/initctl
+MAINTAINER Aaron Ott <aaron.ott@gmail.com>
+
+# Set correct environment variables.
+ENV HOME /root
+
+# Regenerate SSH host keys. baseimage-docker does not contain any, so you
+# have to do that yourself. You may also comment out this instruction; the
+# init system will auto-generate one during boot.
+RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
+
+# Use baseimage-docker's init system.
+CMD ["/sbin/my_init"]
+
+ADD ../ssh_keys /tmp/ssh_keys
+RUN cat /tmp/ssh_keys >> /root/.ssh/authorized_keys && rm -f /tmp/ssh_keys
+
+RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main restricted universe multiverse" > /etc/apt/sources.list
+RUN apt-get update
 
 # Basic Requirements
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-server mysql-client nginx php5-fpm php5-mysql php-apc pwgen python-setuptools curl git unzip
@@ -47,3 +62,6 @@ RUN chmod 755 /start.sh
 EXPOSE 80
 
 CMD ["/bin/bash", "/start.sh"]
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
