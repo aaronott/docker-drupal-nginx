@@ -17,7 +17,7 @@ RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
-ADD ../ssh_keys /tmp/ssh_keys
+ADD ssh_keys /tmp/ssh_keys
 RUN cat /tmp/ssh_keys >> /root/.ssh/authorized_keys && rm -f /tmp/ssh_keys
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main restricted universe multiverse" > /etc/apt/sources.list
