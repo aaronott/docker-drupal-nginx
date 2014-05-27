@@ -17,7 +17,7 @@ else
 	  curl get.docker.io | sudo sh -x
   fi
   sudo docker build -t="${TAG}" . && \
-    sudo docker run -d -t -p $LOCALPORT:3306 -v /data/mysql:$LOCALDIR $TAG
+    sudo docker run --volumes-from=[data-container] -d -t -p $LOCALPORT:3306 -v /data/mysql:$LOCALDIR $TAG /data/mysql
     #sudo docker run -d -t -p $LOCALPORT:3306 docker-drupal-nginx --enable-insecure-key
   CID=$(sudo docker ps | grep $TAG | grep $LOCALPORT | awk '{print $1}')
 fi

@@ -15,7 +15,7 @@ else
 	  curl get.docker.io | sudo sh -x
   fi
   sudo docker build -t="docker-drupal-nginx" . && \
-    sudo docker run -d -t -p $LOCALPORT:80 docker-drupal-nginx
+    sudo docker run --volumes-from=[data-container] -d -t -p $LOCALPORT:80 docker-drupal-nginx /data/nginx
     #sudo docker run -d -t -p $LOCALPORT:80 docker-drupal-nginx --enable-insecure-key
   CID=$(sudo docker ps | grep docker-drupal-nginx | grep $LOCALPORT | awk '{print $1}')
 fi
